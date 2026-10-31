@@ -50,4 +50,20 @@ Three Herdr agents build this repo. Only the owner merges pull requests.
 
 Agent roles, file ownership, and milestones are in `AGENTS.md`. Progress is in `PROGRESS.md`.
 
-The app is not runnable yet. Running instructions will be added when the project scaffold exists.
+### Run locally
+
+Use Node.js 20.19+ on the 20.x line, or Node.js 22.12+ (Node.js 22 LTS recommended).
+
+```sh
+npm install
+npm run dev
+```
+
+Open the local URL printed by Vite. The foundation currently renders a static placeholder; upload, editor, and inference features arrive in later milestones.
+
+```sh
+npm run build   # Type-check and build into dist/
+npm run preview # Serve the production build locally
+```
+
+Tailwind CSS is connected through its Vite plugin. The palette tokens live in `src/index.css`.
