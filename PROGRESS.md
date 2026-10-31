@@ -4,8 +4,8 @@ NoBG is built through six sequential milestones. Only the owner merges pull requ
 
 | Milestone | Owner | Status | Branch | PR | Verification |
 | --- | --- | --- | --- | --- | --- |
-| 0. Foundation | Codex Orchestrator | Ready for review | `milestone/00-foundation` | [#1](https://github.com/Avanith12/NoBG/pull/1) | `npm install` passed (0 vulnerabilities); `npm run build` passed; `npm run dev` started and HTTP checks passed for the page and transformed React module; `git diff --check` passed. |
-| 1. Interface | AGY | Not started | `milestone/01-ui` | — | — |
+| 0. Foundation | Codex Orchestrator | Merged | `milestone/00-foundation` | [#1](https://github.com/Avanith12/NoBG/pull/1) | `npm install` passed (0 vulnerabilities); `npm run build` passed; `npm run dev` started and HTTP checks passed for the page and transformed React module; `git diff --check` passed. |
+| 1. Interface | AGY | In progress | `milestone/01-ui` | — | — |
 | 2. Background removal | Codex Inference Worker | Not started | `milestone/02-ai` | — | — |
 | 3. Working studio | Codex Orchestrator | Not started | `milestone/03-integration` | — | — |
 | 4. Quality | Codex Orchestrator | Not started | `milestone/04-quality` | — | — |
@@ -19,6 +19,6 @@ Agents:
 - Codex Inference Worker owns the model, mask, and export.
 - AGY owns the editor and layout.
 
-Milestone 0 is being prepared in an isolated worktree. The documented shared interface remains unchanged. Both existing workers wait for their assigned milestones; no editor or inference implementation belongs in the foundation.
+Milestone 0 was confirmed merged via GitHub PR #1 on 2026-10-31. Milestone 1 starts from origin/main at 5b88b97 in /tmp/nobg-ui. The documented shared interface remains unchanged. AGY owns the interface milestone; the Codex Inference Worker continues waiting. AGY assignment is prepared; delivery to the existing pane is pending.
 
 Foundation verification used Node.js 25.8.2 and npm 11.11.1. Roles, file ownership, and the shared interface remain documented in `AGENTS.md`. No credentials, editor behavior, inference code, or model weights were added. Browser rendering was not tested; the owner should visually check the placeholder after `npm run dev`. No deployment was run.
