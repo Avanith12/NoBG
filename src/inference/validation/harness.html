@@ -1,0 +1,19 @@
+<!doctype html><html><head><title>NoBG local inference validation</title></head><body>
+<input type="file" id="file" accept="image/png,image/jpeg,image/webp"><button id="run">Run locally</button><pre id="log"></pre><canvas id="preview"></canvas>
+<script type="module">
+import { removeBackground } from '../removeBackground.ts';
+window.removeBackground = removeBackground;
+document.querySelector('#run').onclick = async () => {
+ const file = document.querySelector('#file').files[0];
+ try {
+ const start = performance.now(); const result = await removeBackground(file);
+ window.result = result;
+ const ctx = document.querySelector('#preview').getContext('2d');
+ ctx.canvas.width=result.width; ctx.canvas.height=result.height;
+ const image = new ImageData(new Uint8ClampedArray(result.original.data),result.width,result.height);
+ for(let i=0;i<result.mask.length;i++) image.data[i*4+3]=result.mask[i];
+ ctx.putImageData(image,0,0);
+ document.querySelector('#log').textContent=JSON.stringify({width:result.width,height:result.height,maskLength:result.mask.length,min:result.mask.reduce((a,b)=>Math.min(a,b),255),max:result.mask.reduce((a,b)=>Math.max(a,b),0),totalMs:performance.now()-start});
+ } catch(e) { document.querySelector('#log').textContent=String(e); throw e; }
+};
+</script></body></html>
