@@ -4,7 +4,7 @@ NoBG is built through six sequential milestones. Only the owner merges pull requ
 
 | Milestone | Owner | Status | Branch | PR | Verification |
 | --- | --- | --- | --- | --- | --- |
-| 0. Foundation | Codex Orchestrator | Ready for review | `milestone/00-foundation` | Pending | `npm install` passed (0 vulnerabilities); `npm run build` passed; `npm run dev` started and HTTP checks passed for the page and transformed React module; `git diff --check` passed. |
+| 0. Foundation | Codex Orchestrator | Ready for review | `milestone/00-foundation` | [#1](https://github.com/Avanith12/NoBG/pull/1) | `npm install` passed (0 vulnerabilities); `npm run build` passed; `npm run dev` started and HTTP checks passed for the page and transformed React module; `git diff --check` passed. |
 | 1. Interface | AGY | Not started | `milestone/01-ui` | — | — |
 | 2. Background removal | Codex Inference Worker | Not started | `milestone/02-ai` | — | — |
 | 3. Working studio | Codex Orchestrator | Not started | `milestone/03-integration` | — | — |
