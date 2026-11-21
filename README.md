@@ -18,7 +18,7 @@ npm run build
 npm run preview
 ```
 
-The build writes to `dist/` and uses relative asset URLs so it can be served from a subdirectory. The GitHub Actions workflow runs `npm ci` and `npm run build` for pull requests targeting `main` and pushes to `main`.
+The build writes to `dist/` and uses relative asset URLs so it can be served from a subdirectory. The GitHub Actions workflow runs `npm ci` and `npm run build` for pull requests targeting `main`. A push to `main` also publishes `dist/` to GitHub Pages.
 
 ## Use the studio
 
