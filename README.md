@@ -6,7 +6,7 @@ Remove a background in your browser, pick any color, and download the result. Yo
 
 **Try it:** [avanith12.github.io/NoBG](https://avanith12.github.io/NoBG/)
 
-![NoBG editor](docs/image.png)
+![NoBG background removal](docs/NoBG%20Background%20Removal%20Workflow.gif)
 
 ## What you can do
 
