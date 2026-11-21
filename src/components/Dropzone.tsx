@@ -192,12 +192,12 @@ export const Dropzone: React.FC<DropzoneProps> = ({
 
       {/* Current File Metadata or Sample Status */}
       {currentImage ? (
-        <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/60 px-3 py-2 text-xs">
-          <div className="truncate pr-2">
+        <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/60 px-3 py-2 text-xs gap-2">
+          <div className="truncate pr-2 min-w-0">
             <span className="font-medium text-white block truncate">{currentImage.name}</span>
-            <span className="text-muted">
+            <span className="text-muted text-[11px]">
               {currentImage.width}×{currentImage.height}px • {formatFileSize(currentImage.size)}
-              {isProcessing && <span className="ml-2 text-pink font-semibold">• Processing...</span>}
+              {isProcessing && <span className="ml-1.5 text-pink font-semibold">• Processing...</span>}
             </span>
           </div>
           <button

@@ -10,9 +10,11 @@ export interface StatusState {
 
 interface StatusBarProps {
   status: StatusState
+  isProcessing?: boolean
+  onCancel?: () => void
 }
 
-export const StatusBar: React.FC<StatusBarProps> = ({ status }) => {
+export const StatusBar: React.FC<StatusBarProps> = ({ status, isProcessing = false, onCancel }) => {
   const getBadgeStyle = () => {
     switch (status.severity) {
       case 'error':
@@ -56,15 +58,28 @@ export const StatusBar: React.FC<StatusBarProps> = ({ status }) => {
       id="app-message"
       aria-live="polite"
       role="status"
-      className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-sm transition-colors duration-200 ${container}`}
+      className={`flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm transition-colors duration-200 ${container}`}
     >
-      <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${badge}`}>
-        {tag}
-      </span>
-      <div className="flex-1 min-w-0">
-        <strong className="font-semibold block sm:inline mr-2 text-white">{status.title}</strong>
-        <span className="text-sm opacity-95">{status.message}</span>
+      <div className="flex items-start gap-3 min-w-0">
+        <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${badge}`}>
+          {tag}
+        </span>
+        <div className="flex-1 min-w-0">
+          <strong className="font-semibold block sm:inline mr-2 text-white">{status.title}</strong>
+          <span className="text-sm opacity-95">{status.message}</span>
+        </div>
       </div>
+
+      {isProcessing && onCancel && (
+        <button
+          type="button"
+          onClick={onCancel}
+          aria-label="Cancel background removal"
+          className="shrink-0 rounded bg-zinc-800 px-3 py-1 text-xs font-semibold text-white hover:bg-zinc-700 hover:text-pink transition-colors border border-zinc-600 focus-visible:ring-2 focus-visible:ring-pink cursor-pointer shadow-xs"
+        >
+          Cancel
+        </button>
+      )}
     </aside>
   )
 }

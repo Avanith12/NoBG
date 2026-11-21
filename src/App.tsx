@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Header } from './components/Header'
 import { StatusBar, type StatusState } from './components/StatusBar'
 import { Dropzone, type UploadedImage } from './components/Dropzone'
-import { EditorStage } from './components/EditorStage'
+import { EditorStage, type StudioTool } from './components/EditorStage'
 import { ColorControls } from './components/ColorControls'
 import { DownloadControls } from './components/DownloadControls'
 import { removeBackground, type RemovalResult } from './inference/removeBackground'
@@ -14,6 +14,8 @@ export default function App() {
   const [backgroundColor, setBackgroundColor] = useState<string>('#FF2D95')
   const [isTransparent, setIsTransparent] = useState<boolean>(false)
   const [sliderPosition, setSliderPosition] = useState<number>(50)
+  const [activeTool, setActiveTool] = useState<StudioTool>('compare')
+  const [brushSize, setBrushSize] = useState<number>(25)
   const [status, setStatus] = useState<StatusState>({
     severity: 'ready',
     title: 'Sample Preview',
@@ -24,6 +26,21 @@ export default function App() {
   const abortControllerRef = useRef<AbortController | null>(null)
   const activeRequestIdRef = useRef<number>(0)
   const currentImageRef = useRef<UploadedImage | null>(null)
+
+  const handleCancelProcessing = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
+    activeRequestIdRef.current++
+    setIsProcessing(false)
+    setRemovalResult(null)
+    setStatus({
+      severity: 'info',
+      title: 'Removal Aborted',
+      message: 'Background removal was cancelled.',
+    })
+  }, [])
 
   const handleImageLoaded = useCallback((image: UploadedImage) => {
     // Abort previous in-flight inference if any
@@ -45,6 +62,7 @@ export default function App() {
     setCurrentImage(image)
     setRemovalResult(null)
     setIsProcessing(true)
+    setActiveTool('compare')
 
     setStatus({
       severity: 'info',
@@ -63,16 +81,26 @@ export default function App() {
         setStatus({
           severity: 'success',
           title: 'Background Removed',
-          message: `Background removed for "${image.name}" (${result.width}×${result.height}px). Choose a background color or export.`,
+          message: `Background removed for "${image.name}" (${result.width}×${result.height}px). Refine with brush, choose a color, or export.`,
         })
       })
       .catch((err: unknown) => {
-        if (requestId !== activeRequestIdRef.current || controller.signal.aborted) {
+        if (requestId !== activeRequestIdRef.current) {
           return
         }
         abortControllerRef.current = null
         setIsProcessing(false)
         setRemovalResult(null)
+
+        if (controller.signal.aborted || (err instanceof DOMException && err.name === 'AbortError')) {
+          setStatus({
+            severity: 'info',
+            title: 'Removal Aborted',
+            message: 'Background removal was cancelled.',
+          })
+          return
+        }
+
         const message = err instanceof Error ? err.message : 'Failed to remove background.'
         setStatus({
           severity: 'error',
@@ -98,6 +126,7 @@ export default function App() {
     setCurrentImage(null)
     setRemovalResult(null)
     setIsProcessing(false)
+    setActiveTool('compare')
     setStatus({
       severity: 'info',
       title: 'Sample Restored',
@@ -124,8 +153,12 @@ export default function App() {
       <Header />
 
       <main className="mx-auto flex-1 w-full max-w-7xl px-4 py-6 sm:px-6 lg:py-8 flex flex-col gap-6">
-        {/* Persistent Status Bar (app-message with aria-live="polite") */}
-        <StatusBar status={status} />
+        {/* Persistent Status Bar (app-message with aria-live="polite" and single visible Cancel button) */}
+        <StatusBar
+          status={status}
+          isProcessing={isProcessing}
+          onCancel={handleCancelProcessing}
+        />
 
         {/* Studio Workspace Layout */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
@@ -138,7 +171,11 @@ export default function App() {
               backgroundColor={backgroundColor}
               isTransparent={isTransparent}
               sliderPosition={sliderPosition}
+              activeTool={activeTool}
+              brushSize={brushSize}
               onSliderChange={setSliderPosition}
+              onToolChange={setActiveTool}
+              onBrushSizeChange={setBrushSize}
             />
           </section>
 

@@ -7,6 +7,7 @@ import type { InferenceDiagnostics, WorkerResult } from '../inference/removeBack
 const REVISION = '034e2d884afbab897e10e78fc5bb566b29533fd6'
 const BASE = `https://huggingface.co/onnx-community/ormbg-ONNX/resolve/${REVISION}/onnx/`
 const SIZE = 1024
+const modelDownloadError = () => new Error('The background-removal model could not be downloaded. Check your connection and try again.')
 ort.env.wasm.numThreads = 1 // Works on static hosts without cross-origin isolation.
 ort.env.wasm.wasmPaths = { wasm: wasmUrl, mjs: wasmModuleUrl }
 let loaded: { session: ort.InferenceSession; diagnostics: InferenceDiagnostics } | undefined
@@ -27,13 +28,18 @@ async function load(backend: 'webgpu' | 'wasm') {
       response = await fetch(modelUrl, { credentials: 'omit', referrerPolicy: 'no-referrer' })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
     } catch {
-      throw new Error('The background-removal model could not be downloaded. Check your connection and try again.')
+      throw modelDownloadError()
     }
     if (cache) {
       try { await cache.put(modelUrl, response.clone()); cacheState = 'stored' } catch { /* Quota/full/private storage. */ }
     }
   }
-  const bytes = await response.arrayBuffer()
+  let bytes: ArrayBuffer
+  try {
+    bytes = await response.arrayBuffer()
+  } catch {
+    throw modelDownloadError()
+  }
   const session = await ort.InferenceSession.create(bytes, { executionProviders: [backend] })
   return { session, diagnostics: { backend, cache: cacheState, modelUrl, modelBytes: bytes.byteLength,
     loadMs: performance.now() - start, inferenceMs: 0 } satisfies InferenceDiagnostics }
