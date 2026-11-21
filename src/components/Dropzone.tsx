@@ -12,6 +12,7 @@ export interface UploadedImage {
 
 interface DropzoneProps {
   currentImage: UploadedImage | null
+  isProcessing?: boolean
   onImageLoaded: (image: UploadedImage) => void
   onResetToSample: () => void
   onStatusChange: (status: StatusState) => void
@@ -19,12 +20,14 @@ interface DropzoneProps {
 
 export const Dropzone: React.FC<DropzoneProps> = ({
   currentImage,
+  isProcessing = false,
   onImageLoaded,
   onResetToSample,
   onStatusChange,
 }) => {
   const [isDragging, setIsDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const decodeTokenRef = useRef(0)
 
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`
@@ -36,6 +39,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
     if (!files || files.length === 0) return
 
     const file = files[0]
+    const token = ++decodeTokenRef.current
 
     // 1. Check if empty (0 bytes)
     if (file.size === 0) {
@@ -69,6 +73,10 @@ export const Dropzone: React.FC<DropzoneProps> = ({
     const img = new Image()
 
     img.onload = () => {
+      if (token !== decodeTokenRef.current) {
+        URL.revokeObjectURL(objectUrl)
+        return
+      }
       onImageLoaded({
         file,
         url: objectUrl,
@@ -77,14 +85,13 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         height: img.naturalHeight,
         size: file.size,
       })
-      onStatusChange({
-        severity: 'info',
-        title: 'Image Uploaded',
-        message: `"${file.name}" (${img.naturalWidth}×${img.naturalHeight}px) uploaded. Background removal is not available yet; showing your unprocessed image.`,
-      })
     }
 
     img.onerror = () => {
+      if (token !== decodeTokenRef.current) {
+        URL.revokeObjectURL(objectUrl)
+        return
+      }
       URL.revokeObjectURL(objectUrl)
       onStatusChange({
         severity: 'error',
@@ -95,6 +102,11 @@ export const Dropzone: React.FC<DropzoneProps> = ({
 
     img.src = objectUrl
     if (inputRef.current) inputRef.current.value = ''
+  }
+
+  const handleResetClick = () => {
+    decodeTokenRef.current++
+    onResetToSample()
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -185,12 +197,13 @@ export const Dropzone: React.FC<DropzoneProps> = ({
             <span className="font-medium text-white block truncate">{currentImage.name}</span>
             <span className="text-muted">
               {currentImage.width}×{currentImage.height}px • {formatFileSize(currentImage.size)}
+              {isProcessing && <span className="ml-2 text-pink font-semibold">• Processing...</span>}
             </span>
           </div>
           <button
             type="button"
-            onClick={onResetToSample}
-            className="shrink-0 rounded bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-200 hover:bg-zinc-700 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-pink"
+            onClick={handleResetClick}
+            className="shrink-0 rounded bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-200 hover:bg-zinc-700 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-pink cursor-pointer"
           >
             Reset to Sample
           </button>

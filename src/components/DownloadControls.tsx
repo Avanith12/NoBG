@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
 import type { StatusState } from './StatusBar'
 import type { UploadedImage } from './Dropzone'
+import type { RemovalResult } from '../inference/removeBackground'
+import { exportPng } from '../inference/composite'
 
 interface DownloadControlsProps {
   currentImage: UploadedImage | null
+  removalResult: RemovalResult | null
+  isProcessing: boolean
   backgroundColor: string
   isTransparent: boolean
   onStatusChange: (status: StatusState) => void
@@ -11,27 +15,71 @@ interface DownloadControlsProps {
 
 export const DownloadControls: React.FC<DownloadControlsProps> = ({
   currentImage,
+  removalResult,
+  isProcessing,
   backgroundColor,
-  isTransparent,
   onStatusChange,
 }) => {
   const [exportFormat, setExportFormat] = useState<'transparent' | 'colored'>('colored')
+  const [isExporting, setIsExporting] = useState<boolean>(false)
 
-  const handleDownloadClick = () => {
-    const formatLabel =
-      exportFormat === 'transparent' || isTransparent
-        ? 'Transparent PNG'
-        : `Flattened PNG (${backgroundColor})`
+  const handleDownloadClick = async () => {
+    if (!currentImage || !removalResult) {
+      if (isProcessing) {
+        onStatusChange({
+          severity: 'info',
+          title: 'Processing',
+          message: 'Please wait for background removal to finish before downloading.',
+        })
+        return
+      }
+      onStatusChange({
+        severity: 'info',
+        title: 'Upload Required',
+        message: 'Upload an image first to remove its background and download the result.',
+      })
+      return
+    }
 
-    const dimensionText = currentImage
-      ? `${currentImage.width}×${currentImage.height}px`
-      : 'original resolution'
+    try {
+      setIsExporting(true)
+      // Both PNG export options including selected color regardless of transparent preview
+      const exportBackground = exportFormat === 'transparent' ? null : backgroundColor
+      const formatDescription =
+        exportFormat === 'transparent' ? 'transparent PNG' : `flattened PNG (${backgroundColor})`
 
-    onStatusChange({
-      severity: 'info',
-      title: 'Download Notice',
-      message: `Export requested: ${formatLabel} at ${dimensionText}. Background removal and downloads are not available yet. This is a sample preview of the editor.`,
-    })
+      onStatusChange({
+        severity: 'info',
+        title: 'Exporting PNG',
+        message: `Generating ${formatDescription} at original resolution (${removalResult.width}×${removalResult.height}px)...`,
+      })
+
+      const blob = await exportPng(removalResult.original, removalResult.mask, exportBackground)
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      const baseName = currentImage.name.replace(/\.[^/.]+$/, '') || 'image'
+      const suffix = exportFormat === 'transparent' ? 'transparent' : 'recolored'
+      link.download = `${baseName}-${suffix}.png`
+      link.href = url
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      onStatusChange({
+        severity: 'success',
+        title: 'Download Started',
+        message: `Downloaded ${link.download} (${removalResult.width}×${removalResult.height}px).`,
+      })
+    } catch (err) {
+      onStatusChange({
+        severity: 'error',
+        title: 'Export Failed',
+        message: err instanceof Error ? err.message : 'Could not encode or download the image.',
+      })
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   return (
@@ -81,7 +129,7 @@ export const DownloadControls: React.FC<DownloadControlsProps> = ({
             />
             <span
               className="h-2.5 w-2.5 rounded-full border border-zinc-700"
-              style={{ backgroundColor: isTransparent ? '#FFFFFF' : backgroundColor }}
+              style={{ backgroundColor }}
             />
             Flattened PNG
           </label>
@@ -93,27 +141,36 @@ export const DownloadControls: React.FC<DownloadControlsProps> = ({
         id="download-button"
         type="button"
         onClick={handleDownloadClick}
+        disabled={isExporting}
         aria-label="Download image"
-        className="group relative flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-pink font-semibold text-black transition-all hover:brightness-110 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-panel cursor-pointer shadow-lg shadow-pink/20"
+        className="group relative flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-pink font-semibold text-black transition-all hover:brightness-110 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-panel cursor-pointer shadow-lg shadow-pink/20 disabled:opacity-60 disabled:cursor-not-allowed"
       >
         <svg
-          className="h-5 w-5 text-black group-hover:translate-y-0.5 transition-transform"
+          className={`h-5 w-5 text-black ${isExporting ? 'animate-spin' : 'group-hover:translate-y-0.5 transition-transform'}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={2.5}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-          />
+          {isExporting ? (
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 12a8 8 0 018-8v8H4z" />
+          ) : (
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
+          )}
         </svg>
-        <span>Download {exportFormat === 'transparent' ? 'Transparent' : 'Recolored'} PNG</span>
+        <span>
+          {isExporting
+            ? 'Exporting...'
+            : `Download ${exportFormat === 'transparent' ? 'Transparent' : 'Flattened'} PNG`}
+        </span>
       </button>
 
       <p className="text-[11px] leading-relaxed text-muted">
-        Preserves original pixel dimensions. Background removal and downloads are not available yet.
+        Preserves original pixel dimensions. Exports directly from your browser.
       </p>
     </div>
   )
