@@ -296,11 +296,11 @@ export const EditorStage: React.FC<EditorStageProps> = ({
   const isPaintingMode = activeTool === 'erase' || activeTool === 'restore'
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* Refine / Studio Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-800 bg-panel px-4 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-muted uppercase tracking-wider mr-1">Mode:</span>
+    <div className="flex flex-col gap-3 min-w-0">
+      {/* Refine / Studio Toolbar - Fully responsive without horizontal overflow */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-zinc-800 bg-panel p-2.5 sm:px-4 sm:py-2.5 min-w-0">
+        <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+          <span className="text-xs font-semibold text-muted uppercase tracking-wider mr-0.5">Mode:</span>
 
           {/* Compare Mode Button */}
           <button
@@ -308,7 +308,7 @@ export const EditorStage: React.FC<EditorStageProps> = ({
             onClick={() => onToolChange('compare')}
             aria-pressed={activeTool === 'compare'}
             aria-label="Compare mode: before and after split view"
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 focus-visible:ring-offset-panel cursor-pointer border ${
+            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs font-semibold transition-all focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 focus-visible:ring-offset-panel cursor-pointer border ${
               activeTool === 'compare'
                 ? 'border-pink bg-pink text-black shadow-md shadow-pink/20'
                 : 'border-zinc-700 bg-zinc-900/80 text-zinc-300 hover:border-zinc-500 hover:text-white'
@@ -327,7 +327,7 @@ export const EditorStage: React.FC<EditorStageProps> = ({
             disabled={!removalResult}
             aria-pressed={activeTool === 'erase'}
             aria-label="Erase brush tool. Remove background areas."
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 focus-visible:ring-offset-panel cursor-pointer border disabled:opacity-40 disabled:cursor-not-allowed ${
+            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs font-semibold transition-all focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 focus-visible:ring-offset-panel cursor-pointer border disabled:opacity-40 disabled:cursor-not-allowed ${
               activeTool === 'erase'
                 ? 'border-pink bg-pink text-black shadow-md shadow-pink/20'
                 : 'border-zinc-700 bg-zinc-900/80 text-zinc-300 hover:border-zinc-500 hover:text-white'
@@ -336,7 +336,7 @@ export const EditorStage: React.FC<EditorStageProps> = ({
             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
-            Erase Brush
+            Erase
           </button>
 
           {/* Restore Brush Button */}
@@ -346,7 +346,7 @@ export const EditorStage: React.FC<EditorStageProps> = ({
             disabled={!removalResult}
             aria-pressed={activeTool === 'restore'}
             aria-label="Restore brush tool. Restore foreground areas."
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 focus-visible:ring-offset-panel cursor-pointer border disabled:opacity-40 disabled:cursor-not-allowed ${
+            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs font-semibold transition-all focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 focus-visible:ring-offset-panel cursor-pointer border disabled:opacity-40 disabled:cursor-not-allowed ${
               activeTool === 'restore'
                 ? 'border-pink bg-pink text-black shadow-md shadow-pink/20'
                 : 'border-zinc-700 bg-zinc-900/80 text-zinc-300 hover:border-zinc-500 hover:text-white'
@@ -355,15 +355,15 @@ export const EditorStage: React.FC<EditorStageProps> = ({
             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
             </svg>
-            Restore Brush
+            Restore
           </button>
         </div>
 
-        {/* Brush Size Slider (Keyboard reachable with visible focus) */}
+        {/* Brush Size Slider (Responsive without overflow on mobile) */}
         {isPaintingMode && (
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between sm:justify-start gap-2 min-w-0 w-full sm:w-auto pt-1.5 sm:pt-0 border-t sm:border-t-0 border-zinc-800">
             <label htmlFor="brush-size-slider" className="text-xs font-medium text-zinc-300 whitespace-nowrap">
-              Brush Radius: <span className="font-mono text-pink">{brushSize}px</span>
+              Radius: <span className="font-mono text-pink">{brushSize}px</span>
             </label>
             <input
               id="brush-size-slider"
@@ -373,7 +373,7 @@ export const EditorStage: React.FC<EditorStageProps> = ({
               value={brushSize}
               onChange={(e) => onBrushSizeChange(Number(e.target.value))}
               aria-label="Brush radius in pixels"
-              className="h-2 w-28 cursor-pointer appearance-none rounded-lg bg-zinc-800 accent-pink outline-none focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
+              className="h-2 w-28 sm:w-24 cursor-pointer appearance-none rounded-lg bg-zinc-800 accent-pink outline-none focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 focus-visible:ring-offset-panel shrink-0"
             />
           </div>
         )}
@@ -481,9 +481,9 @@ export const EditorStage: React.FC<EditorStageProps> = ({
             {isProcessing
               ? 'Processing...'
               : activeTool === 'erase'
-              ? 'Erase Brush Active'
+              ? 'Erase Active'
               : activeTool === 'restore'
-              ? 'Restore Brush Active'
+              ? 'Restore Active'
               : removalResult
               ? isTransparent
                 ? 'Transparent'
@@ -512,14 +512,14 @@ export const EditorStage: React.FC<EditorStageProps> = ({
       </div>
 
       {/* Accessible Slider Control (Required ID: compare-slider) */}
-      <div className="flex flex-col gap-1.5 rounded-lg border border-zinc-800 bg-panel px-4 py-3">
-        <div className="flex items-center justify-between text-xs text-muted">
-          <span className="font-medium text-white">Before & After Comparison</span>
-          <span className="font-mono text-zinc-400">{sliderPosition}% Split</span>
+      <div className="flex flex-col gap-1.5 rounded-lg border border-zinc-800 bg-panel px-4 py-3 min-w-0">
+        <div className="flex items-center justify-between text-xs text-muted min-w-0">
+          <span className="font-medium text-white truncate mr-2">Before & After Comparison</span>
+          <span className="font-mono text-zinc-400 shrink-0">{sliderPosition}% Split</span>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold text-zinc-400 uppercase">Original</span>
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="text-xs font-semibold text-zinc-400 uppercase shrink-0">Original</span>
           {/* Required ID: compare-slider */}
           <input
             id="compare-slider"
@@ -535,9 +535,9 @@ export const EditorStage: React.FC<EditorStageProps> = ({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={sliderPosition}
-            className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-zinc-800 accent-pink outline-none focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
+            className="h-2 w-full min-w-0 cursor-pointer appearance-none rounded-lg bg-zinc-800 accent-pink outline-none focus-visible:ring-2 focus-visible:ring-pink focus-visible:ring-offset-2 focus-visible:ring-offset-panel"
           />
-          <span className="text-xs font-semibold text-pink uppercase">
+          <span className="text-xs font-semibold text-pink uppercase shrink-0">
             {isProcessing
               ? 'Processing'
               : removalResult
