@@ -9,20 +9,8 @@ export const Header: React.FC = () => {
             NB
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-black tracking-tight text-white">NoBG</span>
-              <span className="rounded-full border border-pink/40 bg-pink/10 px-2 py-0.5 text-[10px] font-semibold text-pink uppercase tracking-wider">
-                Sample Preview
-              </span>
-            </div>
+            <span className="text-lg font-black tracking-tight text-white">NoBG</span>
             <p className="text-xs text-muted">No background. No problem.</p>
-          </div>
-        </div>
-
-        <div className="hidden sm:flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-1.5 text-zinc-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>100% On-Device (Zero Server Uploads)</span>
           </div>
         </div>
       </div>

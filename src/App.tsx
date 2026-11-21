@@ -211,14 +211,6 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="mt-auto border-t border-zinc-800/80 bg-[#0c0c0f] py-4 text-center text-xs text-muted">
-        <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>NoBG • In-Browser Background Removal</span>
-          <span className="text-[11px] text-zinc-500">
-            Runs entirely on-device • Privacy-first AI
-          </span>
-        </div>
-      </footer>
     </div>
   )
 }
