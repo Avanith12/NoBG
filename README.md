@@ -49,7 +49,6 @@ A push to `main` builds the site and publishes the `dist/` folder to GitHub Page
 - One image at a time. Export is PNG.
 - Fine edges, especially hair, vary by photo. Large images can run out of browser memory.
 - Firefox, Safari, and phones were not part of the release check. Chrome on Linux was.
-- Batch processing and photo backgrounds are not in this version.
 
 ## License
 
